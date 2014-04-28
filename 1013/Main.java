@@ -1,14 +1,28 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
 
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int caseCount = in.nextInt();
+    static final StringBuilder STRING_BUILDER = new StringBuilder();
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        int caseCount = Integer.parseInt(bufferedReader.readLine());
 
         for (int i = 0; i < caseCount; i++) {
-            String adam = in.next();
-            String eve = in.next();
+            String adam = bufferedReader.readLine();
+            String eve = bufferedReader.readLine();
+
+            // long begin = System.currentTimeMillis();
+
+            // Hard-coded values for testing
+            // adam = "QWERTYUIOPC";
+            // eve = "ASDFGHJKLZX";
 
             if (adam.length() > eve.length()) {
                 String temp = adam;
@@ -17,48 +31,61 @@ public class Main {
             }
 
             List<Pair<Integer, String>> shortestCommonSequenceList = findShortestCommonSequenceList(adam, eve);
-            String answer = shortestCommonSequenceList.get(0).snd.length() + " " + shortestCommonSequenceList.size();
 
-            System.out.println("Case " + (i + 1) + ": " + answer);
+            STRING_BUILDER.setLength(0);
+            STRING_BUILDER
+                    .append("Case ")
+                    .append(i + 1)
+                    .append(": ")
+                    .append(shortestCommonSequenceList.get(0).snd.length())
+                    .append(' ')
+                    .append(shortestCommonSequenceList.size());
+            System.out.println(STRING_BUILDER.toString());
+
+            // long time = System.currentTimeMillis() - begin;
+            // System.out.println("Time: " + (time / 1000.0f) + "s");
         }
+    }
+
+    static String getAnswer(List<Pair<Integer, String>> shortestCommonSequenceList) {
+        return shortestCommonSequenceList.get(0).snd.length() + " " + shortestCommonSequenceList.size();
     }
 
     static List<Pair<Integer, String>> findShortestCommonSequenceList(String adam, String eve) {
         // System.out.println("Process \"" + adam + "\" and \"" + eve + "\"");
 
-        List<Pair<Integer, String>> commonSequenceList = new ArrayList<Pair<Integer, String>>(adam.length() + eve.length());
+        int capacity = adam.length() + eve.length();
+        List<Pair<Integer, String>> commonSequenceList = new ArrayList<Pair<Integer, String>>(capacity);
         if (adam.isEmpty()) {
             commonSequenceList.add(new Pair<Integer, String>(eve.length(), eve));
         } else {
             char firstChar = adam.charAt(0);
             String subAdam = adam.substring(1);
             int shortestLength = Integer.MAX_VALUE;
-            StringBuilder stringBuilder = new StringBuilder();
 
             List<Pair<Integer, String>> subShortestCommonSequenceList = findShortestCommonSequenceList(subAdam, eve);
             for (Pair<Integer, String> pair : subShortestCommonSequenceList) {
                 for (int i = 0; i <= pair.fst; i++) {
-                    stringBuilder.setLength(0);
-                    stringBuilder.append(pair.snd);
+                    STRING_BUILDER.setLength(0);
+                    STRING_BUILDER.append(pair.snd);
 
-                    if (i != stringBuilder.length() && stringBuilder.charAt(i) == firstChar) {
+                    if (i != STRING_BUILDER.length() && STRING_BUILDER.charAt(i) == firstChar) {
                         // Do nothing, right?
                     } else {
-                        stringBuilder.insert(i, firstChar);
+                        STRING_BUILDER.insert(i, firstChar);
                     }
 
-                    if (stringBuilder.length() <= shortestLength) {
-                        shortestLength = stringBuilder.length();
-                        commonSequenceList.add(new Pair<Integer, String>(i, stringBuilder.toString()));
+                    if (STRING_BUILDER.length() <= shortestLength) {
+                        shortestLength = STRING_BUILDER.length();
+                        commonSequenceList.add(new Pair<Integer, String>(i, STRING_BUILDER.toString()));
                     }
-
-                    // System.out.println("Upshot: <" + i + ", \"" + stringBuilder.toString() + "\">");
                 }
-
-                filter(commonSequenceList, shortestLength);
             }
+
+            filter(commonSequenceList, shortestLength);
         }
 
+        // System.out.println("Done with \"" + adam + "\" and \"" + eve + "\" => " + getAnswer(commonSequenceList));
         return commonSequenceList;
     }
 
